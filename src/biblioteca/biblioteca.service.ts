@@ -11,7 +11,6 @@ export class BibliotecaService {
       @InjectRepository(Biblioteca,'base1')
       private bibliotecaRepository:Repository<Biblioteca>
     ){}
-    
   async create(createBibliotecaDto: CreateBibliotecaDto): Promise<Biblioteca> {
     const libro=this.bibliotecaRepository.create(createBibliotecaDto)
     return this.bibliotecaRepository.save(libro);
@@ -46,4 +45,3 @@ export class BibliotecaService {
     return this.bibliotecaRepository.find({where:{stock:MoreThan(stock)}})
   }
 }
-

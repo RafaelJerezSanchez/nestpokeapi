@@ -1,34 +1,49 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Put } from '@nestjs/common';
 import { PokemonsService } from './pokemons.service';
 import { CreatePokemonDto } from './dto/create-pokemon.dto';
 import { UpdatePokemonDto } from './dto/update-pokemon.dto';
-
+import { Pokemon } from './entities/pokemon.entity';
 @Controller('pokemons')
 export class PokemonsController {
   constructor(private readonly pokemonsService: PokemonsService) {}
 
   @Post()
-  create(@Body() createPokemonDto: CreatePokemonDto) {
-    return this.pokemonsService.create(createPokemonDto);
+    async create(@Body() CreatePokemonDto: CreatePokemonDto):Promise<Pokemon> {
+      return this.pokemonsService.create(CreatePokemonDto);
+    }
+  
+    @Get()
+    async findAll():Promise<Pokemon[]> {
+      return this.pokemonsService.findAll();
+    }
+
+  @Get('query1')
+  async rutaQuery(@Query('nombre') nombre:string):Promise<Pokemon[]>{
+        return this.pokemonsService.buscaPoke(nombre);
   }
 
-  @Get()
-  findAll() {
-    return this.pokemonsService.findAll();
+  @Get('query2')
+  async ruta(@Query('tipo') tipo:string):Promise<Pokemon[]>{
+        return this.pokemonsService.buscaTipo(tipo);
+  }
+
+  @Get('query3')
+  async rutaQ(@Query('vida') vida:number):Promise<Pokemon[]>{
+        return this.pokemonsService.buscaVida(vida);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string):Promise<Pokemon> {
     return this.pokemonsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePokemonDto: UpdatePokemonDto) {
-    return this.pokemonsService.update(+id, updatePokemonDto);
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() UpdatePokemonDto: UpdatePokemonDto):Promise<string> {
+    return this.pokemonsService.update(+id, UpdatePokemonDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string):Promise<string> {
     return this.pokemonsService.remove(+id);
   }
 }

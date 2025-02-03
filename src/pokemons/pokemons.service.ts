@@ -3,7 +3,7 @@ import { CreatePokemonDto } from './dto/create-pokemon.dto';
 import { UpdatePokemonDto } from './dto/update-pokemon.dto';
 import { Pokemon } from './entities/pokemon.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 
 
 @Injectable()
@@ -18,36 +18,34 @@ export class PokemonsService {
       return this.pokemonRepository.save(poke);
     }
 
-    async findAll(name?: string, type?: string, orderByvida: boolean = true): Promise<Pokemon[]> {
-      const query = this.pokemonRepository.createQueryBuilder('pokemon');
-  
-      // Filtrado por nombre
-      if (name) {
-        query.andWhere('pokemon.nombre LIKE :name', { name: `%${name}%` });
+     async findAll():Promise<Pokemon[]> {
+        return this.pokemonRepository.find();
       }
-  
-      // Filtrado por tipo
-      if (type) {
-        query.andWhere('pokemon.tipo LIKE :type', { type: `%${type}%` });
+    
+      async findOne(id: number):Promise<Pokemon> {
+        return this.pokemonRepository.findOne({where:{id}});
       }
-  
-      // Ordenar por vida (de mayor a menor)
-      if (orderByvida) {
-        query.orderBy('pokemon.vida', 'DESC');
+    
+      async update(id: number, updateBibliotecaDto: UpdatePokemonDto):Promise<string> {
+        const poke=await this.findOne(id);
+        this.pokemonRepository.merge(poke,updateBibliotecaDto);
+        this.pokemonRepository.save(poke);
+        return `El pokemon con id=#${id} ha sido modificado`;
       }
-  
-      return query.getMany();
+    
+      async remove(id: number):Promise<string> {
+        const poke= await this.findOne(id);
+        this.pokemonRepository.remove(poke);
+        return "Elemento de la base de datos eliminado";
+      }
+      
+      async buscaPoke(nombre:string):Promise<Pokemon[]>{
+        return this.pokemonRepository.find({where:{nombre}})
+      }
+      async buscaTipo(tipo:string):Promise<Pokemon[]>{
+        return this.pokemonRepository.find({where:{tipo}})
+      }
+      async buscaVida(vida:number):Promise<Pokemon[]>{
+        return this.pokemonRepository.find({where:{vida:MoreThan(vida)}})
+      }
     }
-  
-    findOne(id: number) {
-      return `This action returns a #${id} pokemon`;
-    }
-  
-    update(id: number, updatePokemonDto: UpdatePokemonDto) {
-      return `This action updates a #${id} pokemon`;
-    }
-  
-    remove(id: number) {
-      return `This action removes a #${id} pokemon`;
-    }
-  }
